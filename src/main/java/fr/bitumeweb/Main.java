@@ -106,35 +106,29 @@ public class Main {
                     if (!exch.getRequestMethod().equals("POST")) {
                         return new Failure(405);
                     }
-                    int len = Integer.parseInt(exch.getRequestHeaders().getFirst("Content-Length"));
-                    new BufferedInputStream(exch.getRequestBody());
-                    ByteBuffer byteBuffer = ByteBuffer.allocate(len);
-                    while (byteBuffer.position() < len) {
-                        byte[] buffer = new byte[2048];
-                        try {
-                            exch.getRequestBody().read(buffer);
-                            byteBuffer.put(buffer);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            return new Retry(500);
-                        }
+                    byte[] buffer;
+                    try {
+                        buffer = new BufferedInputStream(exch.getRequestBody()).readAllBytes();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return new Retry(500);
                     }
                     SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
                     String hash;
                     try {
                         Mac mac = Mac.getInstance("HmacSHA256");
                         mac.init(secretKeySpec);
-                        hash = "sha256=" + new String(encodeHex(mac.doFinal(byteBuffer.array())));
+                        hash = "sha256=" + new String(encodeHex(mac.doFinal(buffer)));
                     } catch (NoSuchAlgorithmException | InvalidKeyException e) {
                         e.printStackTrace();
                         return new Retry(500);
                     }
                     Headers rmap = exch.getRequestHeaders();
-                    String auth = rmap.getFirst("x-hub-signature-256");
+                    String auth = rmap.getFirst("X-Hub-Signature-256");
                     if (!auth.equals(hash)) {
                         return new Failure(403);
                     }
-                    return new Success(new HttpPrincipal("root", new String(byteBuffer.array())));
+                    return new Success(new HttpPrincipal("root", new String(buffer)));
                 }
             });
             serv.setExecutor(null);
