@@ -7,7 +7,6 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,15 +20,13 @@ import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
 
 public class Main {
 
+    public static final char[] HEX_DIGITS = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
     private static JsonObject replacements;
 
-
-    public static final char[] HEX_DIGITS =         {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-
-    public static char[] encodeHex( final byte[] data ){
+    public static char[] encodeHex(final byte[] data) {
         final int l = data.length;
-        final char[] out = new char[l<<1];
-        for( int i=0,j=0; i<l; i++ ){
+        final char[] out = new char[l << 1];
+        for (int i = 0, j = 0; i < l; i++) {
             out[j++] = HEX_DIGITS[(0xF0 & data[i]) >>> 4];
             out[j++] = HEX_DIGITS[0x0F & data[i]];
         }
@@ -47,22 +44,22 @@ public class Main {
         replacements = new JsonObject();
         try {
             replacements = JsonParser.parseReader(new FileReader("replacements.json")).getAsJsonObject();
-        }catch (Throwable ignored){
+        } catch (Throwable ignored) {
             //ignore
         }
         final JsonObject finalReplacements = replacements;
         try {
-            HttpServer serv =  HttpServer.create(new InetSocketAddress("127.0.0.1",3000),0);
+            HttpServer serv = HttpServer.create(new InetSocketAddress("127.0.0.1", 3000), 0);
             HttpContext ctx = serv.createContext("/app/setSeason", exchange -> {
                 Headers resp = exchange.getResponseHeaders();
-                resp.add("Content-Type","text/plain");
+                resp.add("Content-Type", "text/plain");
                 String saison = new BufferedReader(new InputStreamReader(exchange.getRequestBody())).readLine();
                 finalReplacements.add("NOM_SAISON", new JsonPrimitive(saison));
                 FileWriter fw = new FileWriter("replacements.json");
                 gson.toJson(finalReplacements, fw);
                 fw.close();
                 replaceStuff();
-                exchange.sendResponseHeaders(200,-1);
+                exchange.sendResponseHeaders(200, -1);
             });
             Authenticator auth = new Authenticator() {
                 @Override
@@ -90,14 +87,14 @@ public class Main {
                     JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
                     if (jo.has("ref") && jo.get("ref").getAsString().equals("refs/heads/master")) {
                         exchange.sendResponseHeaders(200, -1);
-                        new ProcessBuilder().command("/bin/sh", "-c", "git pull && mvn clean compile exec:java").start();
-                        System.exit(0); //Kill itself, this will be triggered faster than the pulling & compiling
+                        new ProcessBuilder().directory(new File(".")).command("/bin/sh", "-c", "git pull && screen -d -m mvn clean compile exec:java").start().waitFor();
+                        System.exit(0); //Kill itself, if it gets to here the screen has already started
                     } else {
                         exchange.sendResponseHeaders(202, -1);
                     }
-                }catch (Throwable t){
+                } catch (Throwable t) {
                     t.printStackTrace();
-                    exchange.sendResponseHeaders(500,-1);
+                    exchange.sendResponseHeaders(500, -1);
                 }
             });
             git.setAuthenticator(new Authenticator() {
@@ -143,34 +140,34 @@ public class Main {
 
     private static void replaceStuff() {
         final Path dest = Paths.get("/var/www/bitume2000.fr/html/").normalize();
-        final Path source = Paths.get(".","pages").normalize();
+        final Path source = Paths.get(".", "pages").normalize();
         try {
-            Files.walk(source,FOLLOW_LINKS).forEach((p)->{
+            Files.walk(source, FOLLOW_LINKS).forEach((p) -> {
                 p = p.normalize();
-                if(Files.isDirectory(p)){
+                if (Files.isDirectory(p)) {
                     try {
                         Files.createDirectories(dest.resolve(source.relativize(p)));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                }else{
-                    if(p.endsWith(".html")){
+                } else {
+                    if (p.endsWith(".html")) {
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         try {
-                            Files.copy(p,baos);
+                            Files.copy(p, baos);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                         try {
                             String content = baos.toString("utf-8");
-                            for(Map.Entry<String, JsonElement> e : replacements.entrySet()){
-                                content = content.replace(e.getKey(),e.getValue().getAsString());
+                            for (Map.Entry<String, JsonElement> e : replacements.entrySet()) {
+                                content = content.replace(e.getKey(), e.getValue().getAsString());
                             }
                             Files.copy(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), dest.resolve(source.relativize(p)), StandardCopyOption.REPLACE_EXISTING);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                    }else{
+                    } else {
                         try {
                             Files.copy(p, dest.resolve(source.relativize(p)), StandardCopyOption.REPLACE_EXISTING);
                         } catch (IOException e) {
