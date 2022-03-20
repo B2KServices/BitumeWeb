@@ -88,12 +88,12 @@ public class Main {
                 String json = exchange.getPrincipal().getRealm();
                 try {
                     JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
-                    if(jo.has("ref") && jo.get("ref").getAsString().equals("refs/heads/main")){
-                        exchange.sendResponseHeaders(200,-1);
-                        new ProcessBuilder().command("/bin/sh","-c","git pull && mvn clean compile exec:java").start();
+                    if (jo.has("ref") && jo.get("ref").getAsString().equals("refs/heads/master")) {
+                        exchange.sendResponseHeaders(200, -1);
+                        new ProcessBuilder().command("/bin/sh", "-c", "git pull && mvn clean compile exec:java").start();
                         System.exit(0); //Kill itself, this will be triggered faster than the pulling & compiling
-                    }else{
-                        exchange.sendResponseHeaders(202,-1);
+                    } else {
+                        exchange.sendResponseHeaders(202, -1);
                     }
                 }catch (Throwable t){
                     t.printStackTrace();
