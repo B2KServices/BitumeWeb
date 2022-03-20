@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
@@ -36,6 +37,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
+        System.out.println("Starting server...");
         Gson gson = new Gson();
         File f = new File("secret.txt");
         BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
@@ -137,7 +139,9 @@ public class Main {
             });
             serv.setExecutor(null);
             serv.start();
+            System.out.println("Server started ! Doing first replacement...");
             replaceStuff();
+            System.out.println("First replacement done !");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -168,13 +172,13 @@ public class Main {
                             for(Map.Entry<String, JsonElement> e : replacements.entrySet()){
                                 content = content.replace(e.getKey(),e.getValue().getAsString());
                             }
-                            Files.copy(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)),dest.resolve(source.relativize(p)));
+                            Files.copy(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), dest.resolve(source.relativize(p)), StandardCopyOption.REPLACE_EXISTING);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }else{
                         try {
-                            Files.copy(p,dest.resolve(source.relativize(p)));
+                            Files.copy(p, dest.resolve(source.relativize(p)), StandardCopyOption.REPLACE_EXISTING);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
