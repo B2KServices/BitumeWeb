@@ -88,9 +88,8 @@ public class Main {
                     JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
                     if(jo.has("ref") && jo.get("ref").getAsString().equals("refs/heads/main")){
                         exchange.sendResponseHeaders(200,-1);
-                        Process proc = new ProcessBuilder().command("git pull").start();
-                        proc.waitFor();
-                        //TODO restart
+                        new ProcessBuilder().command("/bin/sh","-c","git pull && mvn clean compile exec:java").start();
+                        System.exit(0); //Kill itself, this will be triggered faster than the pulling & compiling
                     }else{
                         exchange.sendResponseHeaders(202,-1);
                     }
