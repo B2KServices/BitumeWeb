@@ -81,6 +81,8 @@ public class Main {
         SSLContext context = getContext();
         if (context != null) {
             server.setWebSocketFactory(new DefaultSSLWebSocketServerFactory(context));
+        } else {
+            System.out.println("WARNING !!! context is null ! using unsecure websocket");
         }
         server.setConnectionLostTimeout(30);
         server.start();
