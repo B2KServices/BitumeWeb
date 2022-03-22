@@ -71,12 +71,13 @@ public class Main {
 
             @Override
             public void onError(WebSocket webSocket, Exception e) {
-
+                System.out.println("Erreur websocket");
+                e.printStackTrace();
             }
 
             @Override
             public void onStart() {
-
+                System.out.println("Websocket démarré");
             }
         };
         SSLContext context = getContext();
