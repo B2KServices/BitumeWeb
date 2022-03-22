@@ -22,6 +22,7 @@ public class ClientMain {
     @Export("onSubmit")
     public static void onSubmit() {
         socket.send(((CustomButton) Window.window().document().getElementById("message")).value());
+        ((CustomButton) Window.window().document().getElementById("message")).value("");
     }
 
     @Export("onClear")

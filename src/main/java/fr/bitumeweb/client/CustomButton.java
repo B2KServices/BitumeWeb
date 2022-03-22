@@ -6,4 +6,7 @@ import de.mirkosertic.bytecoder.api.web.HTMLButton;
 public abstract class CustomButton implements HTMLButton {
     @OpaqueProperty
     public abstract String value();
+
+    @OpaqueProperty
+    public abstract void value(String v);
 }
