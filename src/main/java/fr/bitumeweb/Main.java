@@ -13,6 +13,7 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import java.io.*;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -51,7 +52,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
-        InetSocketAddress host = new InetSocketAddress("127.0.0.1", 8443);
+        InetSocketAddress host = new InetSocketAddress("0.0.0.0", 8443);
         WebSocketServer server = new WebSocketServer(host) {
             @Override
             public void onOpen(WebSocket webSocket, ClientHandshake clientHandshake) {
