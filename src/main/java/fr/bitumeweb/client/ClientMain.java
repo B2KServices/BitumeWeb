@@ -2,6 +2,8 @@ package fr.bitumeweb.client;
 
 
 import de.mirkosertic.bytecoder.api.Export;
+import de.mirkosertic.bytecoder.api.web.Element;
+import de.mirkosertic.bytecoder.api.web.TextNode;
 import de.mirkosertic.bytecoder.api.web.Window;
 
 public class ClientMain {
@@ -11,8 +13,11 @@ public class ClientMain {
         String domain = ((CustomWindow) Window.window()).location().hostname();
         socket = JSWebSocket.create("wss://" + domain + ":8443/chat");
         socket.addEventListener("message", aEvent -> {
-            String data = Window.window().document().getElementById("log").innerHTML();
-            Window.window().document().getElementById("log").innerHTML(data + ((DataEvent) aEvent).data() + "\n");
+
+            TextNode node = Window.window().document().createTextNode(((DataEvent) aEvent).data() + "\n");
+            Element e = Window.window().document().createElement("li");
+            e.appendChild(node);
+            Window.window().document().getElementById("log").appendChild(e);
             System.out.println("Message From Server " + ((DataEvent) aEvent).data());
         });
         socket.addEventListener("open", aEvent -> {
@@ -22,7 +27,8 @@ public class ClientMain {
 
     @Export("onSubmit")
     public static void onSubmit() {
-        socket.send(((CustomButton) Window.window().document().getElementById("message")).value());
+        String rawText = ((CustomButton) Window.window().document().getElementById("message")).value();
+        socket.send(rawText);
         ((CustomButton) Window.window().document().getElementById("message")).value("");
     }
 
