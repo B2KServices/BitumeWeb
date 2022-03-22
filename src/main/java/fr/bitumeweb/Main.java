@@ -51,7 +51,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
-        InetSocketAddress host = new InetSocketAddress("127.0.0.1", 8080);
+        InetSocketAddress host = new InetSocketAddress("127.0.0.1", 8443);
         WebSocketServer server = new WebSocketServer(host) {
             @Override
             public void onOpen(WebSocket webSocket, ClientHandshake clientHandshake) {
