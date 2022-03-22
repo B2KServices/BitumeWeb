@@ -229,7 +229,7 @@ public class Main {
         String[] tokens = data.split(beginDelimiter);
         tokens = tokens[1].split(endDelimiter);
 
-        return Base64.getDecoder().decode(tokens[0]);
+        return Base64.getDecoder().decode(tokens[0].replace("\n", ""));
     }
 
     private static RSAPrivateKey generatePrivateKeyFromDER(byte[] keyBytes)
