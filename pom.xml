@@ -13,9 +13,27 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
-
     <build>
         <plugins>
+            <plugin>
+                <groupId>de.mirkosertic.bytecoder</groupId>
+                <artifactId>bytecoder-mavenplugin</artifactId>
+                <version>2021-11-02</version>
+                <configuration>
+                    <buildDirectory>pages</buildDirectory>
+                    <mainClass>fr.bitumeweb.client.ClientMain</mainClass>
+                    <backend>wasm</backend>
+                    <enableExceptionHandling>false</enableExceptionHandling>
+                    <optimizationLevel>ALL</optimizationLevel>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -37,10 +55,22 @@
 
 
     <dependencies>
+        <!-- Pour lecture de json-->
         <dependency>
-        <groupId>com.google.code.gson</groupId>
-        <artifactId>gson</artifactId>
-        <version>2.9.0</version>
-    </dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.9.0</version>
+        </dependency>
+        <!-- Pour usage de WASM, pour avoir du java clientside -->
+        <dependency>
+            <groupId>de.mirkosertic.bytecoder</groupId>
+            <artifactId>bytecoder.web</artifactId>
+            <version>2021-11-02</version>
+        </dependency>
+        <dependency>
+            <groupId>org.java-websocket</groupId>
+            <artifactId>Java-WebSocket</artifactId>
+            <version>1.5.2</version>
+        </dependency>
     </dependencies>
 </project>

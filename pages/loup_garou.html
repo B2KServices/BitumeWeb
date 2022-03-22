@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+<h1>Test Chat De Merde</h1>
+<textarea id="log" readonly>
+</textarea>
+<input id="message" placeholder="Enter message here..." type="text">
+<button onclick="onSubmit()">Submit</button>
+<script src="bytecoder/bytecoder.js"></script>
+<script>
+
+            // dynamic linking
+            function onSubmit(){
+               bytecoder.exports.onSubmit();
+            }
+            bytecoder.imports.websocket = {
+                create : function (thisref, url) {
+                    return bytecoder.toBytecoderReference(new WebSocket(bytecoder.toJSString(url)));
+                }
+            };
+            var instantiated = function(result) {
+                bytecoder.init(result.instance);
+                bytecoder.exports.initMemory(0);
+                console.log("Memory initialized");
+                bytecoder.exports.bootstrap(0);
+                bytecoder.initializeFileIO();
+                console.log("Bootstrapped");
+                bytecoder.exports.main(0);
+                console.log("Ready for action!");
+
+                // We have to activate the garbage collector!
+                var gcInterval = 200;
+                var gcMaxObjectsPerRun = 30;
+                var gcRunning = false;
+                var runcounter = 0;
+                setInterval(function() {
+                    if (!gcRunning) {
+                        gcRunning = true;
+                        var freed = bytecoder.exports.IncrementalGC(0, gcMaxObjectsPerRun);
+                        if (runcounter++ % 10 === 0) {
+                            var freemem = bytecoder.exports.freeMem(0);
+                            var epoch = bytecoder.exports.GCEpoch(0);
+                            // Pas trop de log svp
+                            // console.log(freemem + " bytes free memory after GC, epoch = " + epoch);
+                        }
+                        gcRunning = false;
+                    }
+                }, gcInterval);
+                // You can add here js code to run when done
+            };
+            // Try to load the WASM file
+            WebAssembly.instantiateStreaming(fetch('bytecoder/bytecoder.wasm'), bytecoder.imports)
+                .then(instantiated)
+                .catch(function(error) {
+                    console.log("Using fallback method to load WebAssembly! Check if mime types for WebAssembly are configured correctly!");
+                    var request = new XMLHttpRequest();
+                    request.open('GET', 'bytecoder/bytecoder.wasm');
+                    request.responseType = 'arraybuffer';
+                    request.send();
+
+                    request.onload = function() {
+                        var bytes = request.response;
+                        WebAssembly.instantiate(bytes, bytecoder.imports).then(instantiated);
+                    };
+                });
+
+
+
+</script>
+</body>
+</html>

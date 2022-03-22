@@ -2,6 +2,9 @@ package fr.bitumeweb;
 
 import com.google.gson.*;
 import com.sun.net.httpserver.*;
+import org.java_websocket.WebSocket;
+import org.java_websocket.handshake.ClientHandshake;
+import org.java_websocket.server.WebSocketServer;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -34,6 +37,34 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
+        InetSocketAddress host = new InetSocketAddress("127.0.0.1", 8080);
+        WebSocketServer server = new WebSocketServer(host) {
+            @Override
+            public void onOpen(WebSocket webSocket, ClientHandshake clientHandshake) {
+                this.broadcast("Connected");
+            }
+
+            @Override
+            public void onClose(WebSocket webSocket, int i, String s, boolean b) {
+                this.broadcast("Disconnected");
+            }
+
+            @Override
+            public void onMessage(WebSocket webSocket, String s) {
+                this.broadcast("Message : " + s);
+            }
+
+            @Override
+            public void onError(WebSocket webSocket, Exception e) {
+
+            }
+
+            @Override
+            public void onStart() {
+
+            }
+        };
+        server.start();
         System.out.println("Starting server...");
         Gson gson = new Gson();
         File f = new File("secret.txt");
@@ -87,7 +118,7 @@ public class Main {
                     JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
                     if (jo.has("ref") && jo.get("ref").getAsString().equals("refs/heads/master")) {
                         exchange.sendResponseHeaders(200, -1);
-                        new ProcessBuilder().directory(new File(".")).command("/bin/sh", "-c", "git pull && screen -d -m mvn clean compile exec:java").start().waitFor();
+                        new ProcessBuilder().directory(new File(".")).command("/bin/sh", "-c", "git pull && screen -d -m mvn clean compile bytecoder:compile exec:java").start().waitFor();
                         System.exit(0); //Kill itself, if it gets to here the screen has already started
                     } else {
                         exchange.sendResponseHeaders(202, -1);
