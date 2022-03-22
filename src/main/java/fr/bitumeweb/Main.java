@@ -88,6 +88,14 @@ public class Main {
         }
         server.setConnectionLostTimeout(30);
         server.start();
+        //En cas d'arrêt, stopper le serveur pour s'assurer que le port est libéré
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                server.stop(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }));
         System.out.println("Starting server...");
         Gson gson = new Gson();
         File f = new File("secret.txt");
