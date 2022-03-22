@@ -2,6 +2,6 @@
 secret.txt
 replacements.json
 target/
-pages/wasm/
+pages/bytecoder/
 certs/
 log.txt
