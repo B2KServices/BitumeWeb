@@ -25,7 +25,7 @@ public class ClientMain {
         ((CustomButton) Window.window().document().getElementById("message")).value("");
     }
 
-    @Export("onClear")
+    @Export("clearTextBox")
     public static void effacerLog() {
         Window.window().document().getElementById("log").innerHTML("");
     }
