@@ -23,6 +23,9 @@ public class ClientMain {
         socket.addEventListener("open", aEvent -> {
             System.out.println("Démarré !");
         });
+        socket.addEventListener("error", aEvent -> {
+            System.err.println("Erreur !!! " + aEvent);
+        });
     }
 
     @Export("onSubmit")
