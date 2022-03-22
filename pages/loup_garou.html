@@ -8,12 +8,19 @@
 </textarea>
 <input id="message" placeholder="Enter message here..." type="text">
 <button onclick="onSubmit()">Submit</button>
+<button onclick="onClear()">Clear</button>
+
 <script src="bytecoder/bytecoder.js"></script>
+
+
 <script>
 
             // dynamic linking
             function onSubmit(){
                bytecoder.exports.onSubmit();
+            }
+            function onClear(){
+               bytecoder.exports.onClear();
             }
             bytecoder.imports.websocket = {
                 create : function (thisref, url) {

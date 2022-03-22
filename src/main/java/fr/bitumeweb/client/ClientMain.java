@@ -23,4 +23,9 @@ public class ClientMain {
     public static void onSubmit() {
         socket.send(((CustomButton) Window.window().document().getElementById("message")).value());
     }
+
+    @Export("onClear")
+    public static void effacerLog() {
+        Window.window().document().getElementById("log").innerHTML("");
+    }
 }
