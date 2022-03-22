@@ -3,4 +3,5 @@ secret.txt
 replacements.json
 target/
 pages/wasm/
+certs/
 log.txt
