@@ -28,5 +28,6 @@ public class ClientMain {
     @Export("clearTextBox")
     public static void effacerLog() {
         Window.window().document().getElementById("log").innerHTML("");
+        System.out.println("Nettoyage !");
     }
 }
