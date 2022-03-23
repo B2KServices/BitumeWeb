@@ -5,7 +5,7 @@
 <body>
 <h1>Test Chat De Merde</h1>
 <ul id="log"></ul>
-<input id="message" placeholder="Enter message here..." type="text">
+<input id="message" onkeydown="if(event.keyCode == 13) onSubmit()" placeholder="Enter message here..." type="text">
 <button onclick="onSubmit()">Submit</button>
 <button onclick="clearTextBox()">Clear</button>
 
