@@ -31,8 +31,7 @@ public class ClientMain {
     @Export("onSubmit")
     public static void onSubmit() {
         String rawText = ((CustomButton) Window.window().document().getElementById("message")).value();
-        if (rawText == null || rawText.equals(""))
-            return;
+        System.out.println(rawText);
         socket.send(rawText);
         ((CustomButton) Window.window().document().getElementById("message")).value("");
     }
